@@ -1,13 +1,10 @@
-require 'spec_helper'
-
 require 'rubygems'
-require 'spec'
-require 'spec/autorun'
-require 'active_support'
+
+require 'rspec'
 
 require 'adyen'
 require 'adyen/matchers'
 
-Spec::Runner.configure do |config|
+RSpec.configure do |config|
   config.include Adyen::Matchers
 end
