@@ -83,6 +83,19 @@ if File.exist?(API_SPEC_INITIALIZER)
       response.should be_success
       response.should be_disabled
     end
+
+    describe "concerning iDEAL" do
+      it "retrieves the list of issuers" do
+        ideal = Adyen::API::IDEAL.new
+        response = ideal.issuers
+        response.should be_success
+        response.list.should == {
+          '0121' => 'Test Issuer',
+          '0151' => 'Test Issuer 2'
+        }:tabnext
+
+      end
+    end
   end
 
 else
