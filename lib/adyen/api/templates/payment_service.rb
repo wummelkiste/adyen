@@ -77,6 +77,16 @@ EOS
 EOS
 
       # @private
+      ELV_PARTIAL = <<EOS
+        <payment:elv>
+          <payment:accountHolderName>%s</payment:accountHolderName>
+          <payment:bankAccountNumber>%s</payment:bankAccountNumber>
+          <payment:bankLocationId>%s</payment:bankLocationId>
+          <payment:bankName>%s</payment:bankName>
+        </payment:elv>
+EOS
+
+      # @private
       ENABLE_RECURRING_CONTRACTS_PARTIAL = <<EOS
         <payment:recurring>
           <payment:contract>RECURRING,ONECLICK</payment:contract>

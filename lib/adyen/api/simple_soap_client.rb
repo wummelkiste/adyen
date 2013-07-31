@@ -93,6 +93,22 @@ EOS
         end
       end
 
+      def validate_one_parameter!(*params)
+        found_params = 0
+        params.each do |param|
+          begin
+            validate_parameter_value!(param, @params[param])
+            found_params += 1
+          rescue ArgumentError => e
+          end
+        end
+        if found_params == 0
+          raise ArgumentError, "One of the parameters #{params.inspect} are required, but all are missing."
+        elsif found_params != 1
+          raise ArgumentError, "One of the parameters #{params.inspect} are required, but only one must be included."
+        end
+      end
+
       # This method wraps the given XML +data+ in a SOAP envelope and posts it to +action+ on the
       # +endpoint+ defined for the subclass.
       #

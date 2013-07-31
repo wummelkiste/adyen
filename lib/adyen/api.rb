@@ -82,11 +82,8 @@ module Adyen
     # @option shopper [String]         :ip            The shopper’s IP address.
     # @option shopper [String]         :statement     The shopper's statement
     #
-    # @option card    [String]         :holder_name   The full name on the card.
-    # @option card    [String]         :number        The card number.
-    # @option card    [String]         :cvc           The card’s verification code.
-    # @option card    [Numeric,String] :expiry_month  The month in which the card expires.
-    # @option card    [Numeric,String] :expiry_year   The year in which the card expires.
+    # @option payment [Hash]           :card          The credit card details
+    # @option payment [Hash]           :elv           The ELV/Lastschrift details
     #
     # @param [Boolean] enable_recurring_contract      Store the payment details at Adyen for
     #                                                 future recurring or one-click payments.
@@ -96,11 +93,15 @@ module Adyen
     #
     # @return [PaymentService::AuthorisationResponse] The response object which holds the
     #                                                 authorisation status.
-    def authorise_payment(reference, amount, shopper, card, enable_recurring_contract = false, fraud_offset = nil)
+    def authorise_payment(reference, amount, shopper, payment, enable_recurring_contract = false, fraud_offset = nil)
+      if payment[:number] # Legacy credit card support
+        payment[:card] = payment
+      end
       params = { :reference    => reference,
                  :amount       => amount,
                  :shopper      => shopper,
-                 :card         => card,
+                 :card         => payment[:card],
+                 :elv          => payment[:elv],
                  :recurring    => enable_recurring_contract,
                  :fraud_offset => fraud_offset }
       PaymentService.new(params).authorise_payment

@@ -82,7 +82,14 @@ module Adyen
       end
 
       def authorise_payment_request_body
-        content = card_partial
+        validate_one_parameter!(:card, :elv)
+
+        content = nil
+        if params[:card]
+          content = card_partial
+        elsif params[:elv]
+          content = elv_partial
+        end
         if @params[:recurring]
           validate_parameters!(:shopper => [:email, :reference])
           content << ENABLE_RECURRING_CONTRACTS_PARTIAL
@@ -148,6 +155,12 @@ module Adyen
           card << @params[:card][:expiry_month].to_i
           CARD_PARTIAL % card
         end
+      end
+      
+      def elv_partial
+        validate_parameters!(:elv => [:holder_name, :account_number, :bank_location_id, :bank_name])
+        elv = @params[:elv].values_at(:holder_name, :account_number, :bank_location_id, :bank_name)
+        ELV_PARTIAL % elv
       end
 
       def shopper_partial
