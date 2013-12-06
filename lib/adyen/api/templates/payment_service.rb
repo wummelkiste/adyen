@@ -87,6 +87,17 @@ EOS
 EOS
 
       # @private
+      SEPA_PARTIAL = <<EOS
+        <payment:bankAccount>
+          <payment:bic>%s</payment:bic>
+          <payment:iban>%s</payment:iban>
+          <payment:ownerName>%s</payment:ownerName>
+          <payment:countryCode>%s</payment:countryCode>
+        </payment:bankAccount>
+        <payment:selectedBrand>sepadirectdebit</payment:selectedBrand>
+EOS
+
+      # @private
       ENABLE_RECURRING_CONTRACTS_PARTIAL = <<EOS
         <payment:recurring>
           <payment:contract>RECURRING,ONECLICK</payment:contract>

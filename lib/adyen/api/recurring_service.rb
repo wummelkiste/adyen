@@ -54,6 +54,14 @@ module Adyen
         ELV_PARTIAL % elv
       end
 
+      SEPA_ATTRS = [:bic, :iban, :owner_name, :country_code]
+      # The SEPA - (Elektronisches Lastschriftverfahren) does not require bank_location, so insert 'nil'.
+      def sepa_partial
+        validate_parameters!(:sepa => SEPA_ATTRS)
+        sepa  = @params[:sepa].values_at(*SEPA_ATTRS)
+        SEPA_PARTIAL % sepa
+      end
+
       def list_request_body
         validate_parameters!(:merchant_account, :shopper => [:reference])
         LIST_LAYOUT % [@params[:merchant_account], @params[:shopper][:reference]]
@@ -72,7 +80,8 @@ module Adyen
         content = []
         content << card_partial unless @params[:card].nil?
         content << elv_partial  unless @params[:elv].nil?    
-        raise ArgumentError, "The required parameter 'card' or 'elv' is missing." if content.empty?    
+        content << sepa_partial  unless @params[:sepa].nil?    
+        raise ArgumentError, "The required parameter 'card', 'elv', or 'sepa' is missing." if content.empty?    
         STORE_TOKEN_LAYOUT % [@params[:merchant_account], @params[:shopper][:reference], @params[:shopper][:email], content]
       end
 
@@ -122,12 +131,15 @@ module Adyen
 
           card = node.xpath('./recurring:card')
           elv  = node.xpath('./recurring:elv')  
+          sepa  = node.xpath('./recurring:sepa')  
           bank = node.xpath('./recurring:bank')        
           
           if !card.children.empty?
             result[:card] = parse_card_details(card)
           elsif !elv.children.empty?
             result[:elv] = parse_elv_details(elv)
+          elsif !sepa.children.empty?
+            result[:sepa] = parse_sepa_details(sepa)
           else
             result[:bank] = parse_bank_details(bank)
           end
@@ -150,6 +162,15 @@ module Adyen
             :bank_location    => elv.text('./payment:bankLocation'),
             :bank_location_id => elv.text('./payment:bankLocationId'),
             :bank_name        => elv.text('./payment:bankName')
+          }
+        end
+
+        def parse_sepa_details(sepa)
+          {
+            :bic          => sepa.text('./payment:bic'),
+            :iban         => sepa.text('./payment:iban'),
+            :owner_name   => sepa.text('./payment:ownerName'),
+            :country_code => sepa.text('./payment:countryCode')
           }
         end
 

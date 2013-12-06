@@ -82,13 +82,15 @@ module Adyen
       end
 
       def authorise_payment_request_body
-        validate_one_parameter!(:card, :elv)
+        validate_one_parameter!(:card, :elv, :sepa)
 
         content = nil
         if params[:card]
           content = card_partial
         elsif params[:elv]
           content = elv_partial
+        elsif params[:sepa]
+          content = sepa_partial
         end
         if @params[:recurring]
           validate_parameters!(:shopper => [:email, :reference])
@@ -161,6 +163,12 @@ module Adyen
         validate_parameters!(:elv => [:holder_name, :account_number, :bank_location_id, :bank_name])
         elv = @params[:elv].values_at(:holder_name, :account_number, :bank_location_id, :bank_name)
         ELV_PARTIAL % elv
+      end
+      
+      def sepa_partial
+        validate_parameters!(:sepa => [:bic, :iban, :owner_name, :country_code])
+        sepa = @params[:sepa].values_at(:bic, :iban, :owner_name, :country_code)
+        SEPA_PARTIAL % sepa
       end
 
       def shopper_partial

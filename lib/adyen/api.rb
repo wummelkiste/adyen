@@ -84,6 +84,7 @@ module Adyen
     #
     # @option payment [Hash]           :card          The credit card details
     # @option payment [Hash]           :elv           The ELV/Lastschrift details
+    # @option payment [Hash]           :sepa          The SEPA details
     #
     # @param [Boolean] enable_recurring_contract      Store the payment details at Adyen for
     #                                                 future recurring or one-click payments.
@@ -102,6 +103,7 @@ module Adyen
                  :shopper      => shopper,
                  :card         => payment[:card],
                  :elv          => payment[:elv],
+                 :sepa         => payment[:sepa],
                  :recurring    => enable_recurring_contract,
                  :fraud_offset => fraud_offset }
       PaymentService.new(params).authorise_payment
@@ -352,9 +354,20 @@ module Adyen
     # @option params    [String]         :bank_name            The Bank Name.
     # @option params    [Numeric,String] :bank_location_id     The Bank Location ID (Bankleitzahl).
     #
+    # ##### SEPA specific options:
+    #
+    # @option params    [String]         :bic                  The Business Identifier Codes.
+    # @option params    [String]         :iban                 The International Bank Account Number.
+    # @option params    [String]         :country_code         The Country Code.
+    #
     # @return [RecurringService::StoreTokenResponse] The response object
     def store_recurring_token(shopper, params)
-        payment_method = params.include?(:bank_location_id) ? :elv : :card
+        payment_method = :card
+        if params.include?(:bank_location_id)
+          payment_method = :elv
+        elsif params.include?(:bic)
+          payment_method = :sepa
+        end
         RecurringService.new({
           :shopper => shopper,
           payment_method => params

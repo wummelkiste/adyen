@@ -65,6 +65,16 @@ EOS
           <payment:bankAccountNumber>%02d</payment:bankAccountNumber>
         </recurring:elv>
 EOS
+      # @private
+      SEPA_PARTIAL = <<EOS
+        <recurring:elv>
+          <payment:bic>%s</payment:bic>
+          <payment:iban>%s</payment:iban>
+          <payment:ownerName>%s</payment:ownerName>
+          <payment:countryCode>%s</payment:countryCode>
+        </recurring:elv>
+        <payment:selectedBrand>sepadirectdebit</payment:selectedBrand>
+EOS
 
     end
   end
