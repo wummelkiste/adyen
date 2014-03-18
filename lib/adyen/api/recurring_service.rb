@@ -138,7 +138,7 @@ module Adyen
             result[:card] = parse_card_details(card)
           elsif !elv.children.empty?
             result[:elv] = parse_elv_details(elv)
-          elsif !sepa.children.empty?
+          elsif sepa and !sepa.children.empty?
             result[:sepa] = parse_sepa_details(sepa)
           else
             result[:bank] = parse_bank_details(bank)
